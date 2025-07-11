@@ -1,0 +1,157 @@
+import { wpApi, formatDate, getExcerpt } from '@/lib/wordpress-api';
+import { WordPressPost } from '@/types/wordpress';
+import Link from 'next/link';
+import SafeImage from '@/components/SafeImage';
+
+interface BlogPostsListProps {
+  page?: number;
+  category?: number;
+  tag?: number;
+  search?: string;
+}
+
+export default async function BlogPostsList({ 
+  page = 1, 
+  category,
+  tag,
+  search 
+}: BlogPostsListProps) {
+  try {
+    const posts = await wpApi.getPosts({
+      page,
+      per_page: 10,
+      categories: category ? [category] : undefined,
+      tags: tag ? [tag] : undefined,
+      search,
+      orderby: 'date',
+      order: 'desc',
+      status: 'publish',
+    });
+
+    if (!posts || posts.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">記事が見つかりませんでした。</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        {posts.map((post: WordPressPost) => (
+          <article key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+{post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
+              <div className="aspect-video relative overflow-hidden">
+                <SafeImage
+                  src={post._embedded['wp:featuredmedia'][0].source_url}
+                  alt={post.title.rendered}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  fallback="/placeholder.svg"
+                />
+              </div>
+            ) : (
+              <div className="aspect-video relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+              </div>
+            )}
+            
+            <div className="p-6">
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <time dateTime={post.date}>
+                  {formatDate(post.date)}
+                </time>
+                
+{post._embedded?.['wp:term']?.[0] && post._embedded['wp:term'][0].length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <span>•</span>
+                    <div className="flex flex-wrap gap-1">
+                      {post._embedded['wp:term'][0].slice(0, 3).map((category: { id: number; name: string; slug: string }) => (
+                        <Link
+                          key={category.id}
+                          href={`/categories/${category.slug}`}
+                          className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 rounded-full text-xs hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                <Link href={`/posts/${post.slug}`}>
+                  <span dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
+                </Link>
+              </h2>
+
+              <div className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                <span dangerouslySetInnerHTML={{ __html: getExcerpt(post.excerpt.rendered, 200) }} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Link
+                  href={`/posts/${post.slug}`}
+                  className="inline-flex items-center text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium transition-colors"
+                >
+                  続きを読む
+                  <svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+
+                {post._embedded?.['wp:term']?.[1] && (
+                  <div className="flex flex-wrap gap-1">
+                    {post._embedded['wp:term'][1].slice(0, 3).map((tag: { id: number; name: string; slug: string }) => (
+                      <Link
+                        key={tag.id}
+                        href={`/tags/${tag.slug}`}
+                        className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        #{tag.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+
+        <div className="flex justify-center mt-12">
+          <nav className="flex items-center space-x-2">
+            {page > 1 && (
+              <Link
+                href={`/?page=${page - 1}`}
+                className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                前へ
+              </Link>
+            )}
+            
+            <span className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900 border border-blue-300 dark:border-blue-600 rounded-md">
+              {page}
+            </span>
+            
+            <Link
+              href={`/?page=${page + 1}`}
+              className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              次へ
+            </Link>
+          </nav>
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 dark:text-red-400 text-lg">記事の取得に失敗しました。</p>
+      </div>
+    );
+  }
+}

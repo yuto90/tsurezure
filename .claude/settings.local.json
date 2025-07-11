@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developer.wordpress.org)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:gakogako.com)",
+      "Bash(npm run lint)",
+      "Bash(npm run dev:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(rm:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(pgrep:*)"
+    ],
+    "deny": []
+  }
+}
