@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       <BlogHeader />
-      
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           <main className="lg:col-span-3">
@@ -31,7 +31,7 @@ export default function Home() {
               </Suspense>
             </ErrorBoundary>
           </main>
-          
+
           <aside className="lg:col-span-1">
             <Suspense fallback={
               <div className="space-y-8">

@@ -10,11 +10,11 @@ interface BlogPostsListProps {
   search?: string;
 }
 
-export default async function BlogPostsList({ 
-  page = 1, 
+export default async function BlogPostsList({
+  page = 1,
   category,
   tag,
-  search 
+  search
 }: BlogPostsListProps) {
   try {
     const posts = await wpApi.getPosts({
@@ -57,13 +57,13 @@ export default async function BlogPostsList({
                 </svg>
               </div>
             )}
-            
+
             <div className="space-y-4">
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <time dateTime={post.date} className="font-mono">
                   {formatDate(post.date)}
                 </time>
-                
+
                 {post._embedded?.['wp:term']?.[0] && post._embedded['wp:term'][0].length > 0 && (
                   <div className="flex items-center space-x-2">
                     <span>•</span>
@@ -131,11 +131,11 @@ export default async function BlogPostsList({
                 ← 前へ
               </Link>
             )}
-            
+
             <span className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
               {page}
             </span>
-            
+
             <Link
               href={`/?page=${page + 1}`}
               className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"

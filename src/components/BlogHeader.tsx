@@ -25,8 +25,8 @@ export default function BlogHeader() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="text-xl font-semibold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 tracking-tight"
               >
                 徒然なるままに技術
